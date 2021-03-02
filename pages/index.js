@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {connect} from 'react-redux';
 import Head from "next/head";
 import Link from "next/link";
 import { Container, FormControl, Row, Col, Card } from "react-bootstrap";
 import request from '../untils/request';
 import { useQuery } from "react-query";
+import { setPokemon } from '../Lib/redux/actions'
 
 const getPokemon = async (key, q) => {
   const { data } = await request.get(`/api/search?q=${escape(q)}`);
@@ -15,9 +17,13 @@ const getPokemon = async (key, q) => {
   }));
 };
 
-const Home = () => {
+const Home = (props) => {
   const [query, setQuery] = useState("");
   const { data } = useQuery(["q", query], getPokemon);
+
+  useEffect(() => {
+      props.setPokemon(data)
+  }, [data]);
 
   return (
     <div className="container">
@@ -59,4 +65,15 @@ const Home = () => {
   );
 };
 
-export default Home;
+const mapStateToProps = (storeState, ownProps) => {
+  let newState = Object.assign({}, ownProps);
+  return newState;
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    setPokemon: (data) => dispatch(setPokemon(data)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
