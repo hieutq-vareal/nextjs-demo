@@ -1,4 +1,4 @@
-import axios from 'axios'
+import request from '../untils/request'
 
 const Home = ({ data }) => {
   return (
@@ -14,7 +14,7 @@ const Home = ({ data }) => {
 }
   
 export async function getStaticProps (context) {
-  const response = await axios.get('https://swapi.dev/api/films/')
+  const response = await request.get('films/')
   return { props: { data: response.data.results } }
 }
 
