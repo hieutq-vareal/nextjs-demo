@@ -1,65 +1,62 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import { useState } from "react";
+import Head from "next/head";
+import Link from "next/link";
+import { Container, FormControl, Row, Col, Card } from "react-bootstrap";
+import request from '../untils/request';
+import { useQuery } from "react-query";
 
-export default function Home() {
+const getPokemon = async (key, q) => {
+  const { data } = await request.get(`/api/search?q=${escape(q)}`);
+  return data.map((pokemon) => ({
+    ...pokemon,
+    image: `/pokemon/${pokemon.name.english
+      .toLowerCase()
+      .replace(" ", "-")}.jpg`,
+  }));
+};
+
+const Home = () => {
+  const [query, setQuery] = useState("");
+  const { data } = useQuery(["q", query], getPokemon);
+
   return (
-    <div className={styles.container}>
+    <div className="container">
       <Head>
-        <title>Create Next App</title>
+        <title>Pokemon!</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+      <Container>
+        <FormControl
+          placeholder="Search"
+          aria-label="Search"
+          value={query}
+          onChange={(evt) => setQuery(evt.target.value)}
+        />
+        {data && (
+          <Row>
+            {data.map(({ id, name, type, image }) => (
+              <Col xs={4} key={id} style={{ padding: 5 }}>
+                <Link href={`/pokemon/${name.english}`}>
+                  <Card>
+                    <Card.Img
+                      variant="top"
+                      src={image}
+                      style={{ maxHeight: 300 }}
+                    />
+                    <Card.Body>
+                      <Card.Title>{name.english}</Card.Title>
+                      <Card.Subtitle>{type.join(", ")}</Card.Subtitle>
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </Col>
+            ))}
+          </Row>
+        )}
+      </Container>
     </div>
-  )
-}
+  );
+};
+
+export default Home;
