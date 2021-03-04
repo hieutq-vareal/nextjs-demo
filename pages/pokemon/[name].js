@@ -10,6 +10,7 @@ export async function getStaticPaths() {
       },
     })),
     fallback: false,
+    
   };
 }
 
@@ -20,10 +21,12 @@ export async function getStaticProps(context) {
         ({ name: { english } }) => english === context.params.name
       )[0],
     },
+    revalidate: 10
   };
 }
 
 export default ({ data }) => {
+
   return (
     <div>
       <Head>
